@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTBK Tryout Platform</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; }
+    #sidebar { width: 250px; background: #2c3e50; color: #ecf0f1; padding: 20px; box-sizing: border-box; }
+    #sidebar h2 { margin-top: 0; }
+    #sidebar button { width: 100%; margin: 10px 0; padding: 10px; background: #34495e; border: none; color: #ecf0f1; cursor: pointer; }
+    #sidebar button.active { background: #1abc9c; }
+    #main { flex: 1; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+    .hidden { display: none; }
+    .card { border: 1px solid #bdc3c7; border-radius: 5px; padding: 20px; margin-bottom: 20px; }
+    .options button { display: block; width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #2980b9; background: #3498db; color: white; cursor: pointer; border-radius: 4px; }
+    .options button.selected { background: #1abc9c; }
+    #progress { margin-bottom: 20px; }
+    #comments { border-top: 1px solid #ccc; padding-top: 10px; }
+    #comments h3 { margin-top: 0; }
+    #comments textarea { width: 100%; height: 60px; }
+    #comments button { padding: 8px 12px; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    table, th, td { border: 1px solid #bdc3c7; }
+    th, td { padding: 8px; text-align: left; }
+    #backBtn { margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    /* Tambahkan style untuk button container */
+    .button-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    #backBtnTryout {
+      padding: 10px 20px;
+      background: #95a5a6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #backBtnTryout:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h2>UTBK Tryout</h2>
+    <button id="nav-login" class="active">Login</button>
+    <button id="nav-tryout" disabled>Tryout</button>
+    <button id="nav-scoreboard" disabled>Scoreboard</button>
+  </div>
+  <div id="main">
+    <!-- Login View -->
+    <div id="view-login">
+      <div class="card">
+        <h3>Login</h3>
+        <input id="email" type="email" placeholder="Email"><br>
+        <input id="password" type="password" placeholder="Password"><br>
+        <button id="loginBtn">Login</button>
+      </div>
+    </div>
+    <!-- Tryout View -->
+    <div id="view-tryout" class="hidden">
+      <div id="setup" class="card">
+        <h3>Mulai Tryout</h3>
+        <select id="category">
+          <option value="TPS">TPS</option>
+          <option value="TKA Saintek">TKA Saintek</option>
+          <option value="TKA Soshum">TKA Soshum</option>
+        </select><br>
+        <button id="startBtn">Start</button>
+      </div>
+      <div id="quiz" class="hidden">
+    <div id="progress"></div>
+    <div class="card">
+      <h3 id="qCategory"></h3>
+      <p id="qText"></p>
+      <div class="options" id="options"></div>
+    </div>
+    <div class="button-container">
+      <button id="backBtnTryout" disabled>Back</button>
+      <button id="nextBtn" class="button" disabled>Next</button>
+    </div>
+        <div id="comments">
+          <h3>Comments</h3>
+          <div id="commentList"></div>
+          <textarea id="commentContent" placeholder="Add a comment..."></textarea><br>
+          <button id="addCommentBtn">Submit Comment</button>
+        </div>
+      </div>
+      <div id="result" class="card hidden">
+        <h3>Hasil Tryout</h3>
+        <p>Score: <span id="resultScore"></span></p>
+        <p>Model Used: <span id="resultMode"></span></p>
+        <button id="backBtn">Kembali ke Tryout</button>
+      </div>
+    </div>
+    <!-- Scoreboard View -->
+    <div id="view-scoreboard" class="hidden">
+      <h3>Scoreboard</h3>
+      <table>
+        <thead><tr><th>Name</th><th>TPS</th><th>Saintek</th><th>Soshum</th><th>Average</th></tr></thead>
+        <tbody id="scoreboardBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    const apiBase = 'http://localhost:5000';
+    let token = '';
+    let attemptId = '';
+    let questions = [];
+    let currentIndex = 0;
+    let responses = [];
+
+    // Navigation
+    document.getElementById('nav-login').onclick = () => showView('login');
+    document.getElementById('nav-tryout').onclick = () => showView('tryout');
+    document.getElementById('nav-scoreboard').onclick = () => { loadScoreboard(); showView('scoreboard'); };
+
+    function showView(view) {
+      ['login','tryout','scoreboard'].forEach(v => {
+        document.getElementById('nav-'+v).classList.toggle('active', v===view);
+        document.getElementById('view-'+v).classList.toggle('hidden', v!==view);
+      });
+    }
+
+    // Login
+    document.getElementById('loginBtn').onclick = async () => {
+      const res = await fetch(`${apiBase}/api/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      });
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        document.getElementById('nav-tryout').disabled = false;
+        document.getElementById('nav-scoreboard').disabled = false;
+        showView('tryout');
+      } else {
+        alert('Login failed');
+      }
+    };
+
+    // Start Tryout
+    document.getElementById('startBtn').onclick = async () => {
+      const category = document.getElementById('category').value;
+      const res = await fetch(`${apiBase}/api/tryout/start?category=${encodeURIComponent(category)}`, {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + token}
+      });
+      const data = await res.json();
+      attemptId = data.attemptId;
+      questions = data.nextItems;
+      currentIndex = 0;
+      responses = new Array(questions.length).fill(null); // Inisialisasi array responses
+      showQuestion();
+    };
+
+    // Show question dengan navigasi
+    async function showQuestion() {
+      const q = questions[currentIndex];
+      
+      // Update UI
+      document.getElementById('setup').classList.add('hidden');
+      document.getElementById('quiz').classList.remove('hidden');
+      document.getElementById('result').classList.add('hidden');
+      
+      // Update progress
+      document.getElementById('progress').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+      document.getElementById('qCategory').textContent = `${q.category} - ${q.subtest}`;
+      document.getElementById('qText').textContent = q.text;
+      
+      // Update options
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      Object.entries(q.options).forEach(([key, value]) => {
+        const button = document.createElement('button');
+        button.textContent = `${key}. ${value}`;
+        
+        // Cek jika sudah ada jawaban sebelumnya
+        if (responses[currentIndex]?.answer === key) {
+          button.classList.add('selected');
+        }
+        
+        button.onclick = () => selectOption(button, key);
+        optionsDiv.appendChild(button);
+      });
+
+      // Update tombol navigasi
+      const backBtn = document.getElementById('backBtnTryout');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      backBtn.disabled = currentIndex === 0;
+      nextBtn.textContent = currentIndex === questions.length - 1 ? 'Submit' : 'Next';
+      nextBtn.disabled = !responses[currentIndex];
+    }
+
+    function selectOption(btn, answer) {
+      document.querySelectorAll('#options button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      
+      // Simpan jawaban di array responses
+      responses[currentIndex] = {
+        itemId: questions[currentIndex].id,
+        answer: answer
+      };
+      
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    // Navigasi maju mundur
+    document.getElementById('backBtnTryout').onclick = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showQuestion();
+      }
+    };
+
+    document.getElementById('nextBtn').onclick = async () => {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        showQuestion();
+      } else {
+        // Submit semua jawaban
+        try {
+          const res = await fetch(`${apiBase}/api/tryout/answer`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+              attemptId,
+              responses: responses.filter(r => r !== null)
+            })
+          });
+          
+          const data = await res.json();
+          if (data.points) {
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultScore').textContent = data.points;
+            document.getElementById('resultMode').textContent = data.mode;
+            document.getElementById('result').classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Submission error:', error);
+          alert('Error submitting answers');
+        }
+      }
+    };
+
+    // Back button handler
+    document.getElementById('backBtn').onclick = () => {
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('setup').classList.remove('hidden');
+      document.getElementById('quiz').classList.add('hidden');
+    };
+
+    // Comments handling
+    async function loadComments(questionId) {
+      const res = await fetch(`${apiBase}/api/comments/${questionId}`, {
+        headers: {'Authorization': 'Bearer ' + token}
+      });
+      const comments = await res.json();
+      const commentList = document.getElementById('commentList');
+      commentList.innerHTML = comments.map(c => 
+        `<div><strong>${c.user}:</strong> ${c.content}</div>`
+      ).join('');
+    }
+
+    document.getElementById('addCommentBtn').onclick = async () => {
+      const content = document.getElementById('commentContent').value;
+      const questionId = questions[currentIndex].id;
+      
+      await fetch(`${apiBase}/api/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          questionId,
+          content
+        })
+      });
+      
+      document.getElementById('commentContent').value = '';
+      loadComments(questionId);
+    };
+
+    // Scoreboard
+    async function loadScoreboard() {
+      const res = await fetch(`${apiBase}/api/admin/scoreboard`, {
+        headers: {'Authorization': 'Bearer ' + token}
+      });
+      const data = await res.json();
+      const tbody = document.getElementById('scoreboardBody');
+      tbody.innerHTML = data.map(user => `
+        <tr>
+          <td>${user.name}</td>
+          <td>${user.scores.TPS || '-'}</td>
+          <td>${user.scores.TKA_Saintek || '-'}</td>
+          <td>${user.scores.TKA_Soshum || '-'}</td>
+          <td>${user.average}</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
