@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -102,9 +101,6 @@ export default function Login() {
               <Link to="/register" className="text-utbk-blue hover:text-utbk-blue/90 font-medium">
                 Daftar sekarang
               </Link>
-            </div>
-            <div className="text-xs text-muted-foreground text-center">
-              Demo credentials: email: user@example.com, password: password123
             </div>
           </CardFooter>
         </form>

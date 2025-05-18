@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'admin' | 'guru' | 'siswa';
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 const UserSchema = new mongoose.Schema(
@@ -12,7 +13,8 @@ const UserSchema = new mongoose.Schema(
     name: String,
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'guru', 'siswa'], default: 'siswa' }
+    role: { type: String, enum: ['admin', 'guru', 'siswa'], default: 'siswa' },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
   },
   { timestamps: true }
 );

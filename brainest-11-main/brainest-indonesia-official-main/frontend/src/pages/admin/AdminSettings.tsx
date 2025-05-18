@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Lock, UserCheck, UserX, AreaChart, Bell, ShieldCheck, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+import { Link } from 'react-router-dom';
 
 // Mock data user
 const mockUsers = [
@@ -32,8 +34,15 @@ const difficultyBadge = (level: string) => {
   return "bg-gray-200 text-gray-900 font-bold";
 };
 
+// Dummy data statistik user
+const userStats = [
+  { role: 'Admin', jumlah: 5 },
+  { role: 'Guru', jumlah: 12 },
+  { role: 'Siswa', jumlah: 120 },
+];
+
 export default function AdminSettings() {
-  const [tab, setTab] = useState("user");
+  const [tab, setTab] = useState("irt");
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
 
@@ -53,153 +62,95 @@ export default function AdminSettings() {
     <div className="p-8 text-white">
       <h1 className="text-2xl font-bold mb-6">Pengaturan Admin</h1>
       <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList className="mb-6 flex flex-wrap gap-2 bg-[#10172a] border border-cyan-900/40 rounded-xl shadow-lg">
-          <TabsTrigger value="user">Manajemen User</TabsTrigger>
+        <TabsList className="mb-6 flex justify-center gap-8 bg-[#10172a] border border-cyan-900/40 rounded-xl shadow-lg px-4 py-2">
           <TabsTrigger value="irt">IRT & Penilaian</TabsTrigger>
-          <TabsTrigger value="monitoring">Monitoring & Statistik</TabsTrigger>
           <TabsTrigger value="pengumuman">Pengumuman & Notifikasi</TabsTrigger>
           <TabsTrigger value="audit">Audit Log</TabsTrigger>
-          <TabsTrigger value="keamanan">Keamanan</TabsTrigger>
         </TabsList>
-        <TabsContent value="user">
-          <h2 className="text-xl font-bold mb-6">Manajemen User</h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Input
-              placeholder="Cari pengguna..."
-              className="w-72 bg-[#181f2e] border border-cyan-900/40 text-cyan-100 focus:ring-2 focus:ring-cyan-400 rounded-xl shadow"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <select
-              className="rounded-xl px-3 py-2 bg-[#181f2e] border border-cyan-900/40 text-cyan-100 focus:ring-2 focus:ring-cyan-400 shadow"
-              value={role}
-              onChange={e => setRole(e.target.value)}
-            >
-              {roleOptions.map(r => (
-                <option key={r} value={r}>{r === "all" ? "Filter berdasarkan role" : r.charAt(0).toUpperCase() + r.slice(1)}</option>
-              ))}
-            </select>
-          </div>
-          <div className="overflow-x-auto rounded-2xl border border-cyan-900/40 bg-[#10172a] shadow-xl">
-            <Table className={tableClassName}>
-              <TableHeader className={headerClassName}>
-                <TableRow>
-                  <TableHead className={cellClassName}>Nama</TableHead>
-                  <TableHead className={cellClassName}>Email</TableHead>
-                  <TableHead className={cellClassName}>Role</TableHead>
-                  <TableHead className={cellClassName}>Tanggal Daftar</TableHead>
-                  <TableHead className={cellClassName}>Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow className={rowClassName}>
-                    <TableCell colSpan={5} className={cellClassName + " text-center text-muted-foreground"}>Tidak ada user ditemukan.</TableCell>
-                  </TableRow>
-                ) : filteredUsers.map(user => (
-                  <TableRow key={user.id} className={rowClassName}>
-                    <TableCell className={cellClassName + " font-bold text-white text-base"}>{user.name}</TableCell>
-                    <TableCell className={cellClassName + " text-cyan-100"}>{user.email}</TableCell>
-                    <TableCell className={cellClassName}>
-                      <span className={`inline-block px-4 py-1 rounded-full text-base ${roleBadgeColor(user.role)}`}>{user.role === "admin" ? "Admin" : user.role === "editor" ? "Editor" : "User"}</span>
-                    </TableCell>
-                    <TableCell className={cellClassName + " text-cyan-100"}>2023-05-01</TableCell>
-                    <TableCell className={cellClassName + " flex gap-2"}>
-                      <Button size="icon" variant="ghost" className="bg-[#181f2e] text-cyan-200 hover:bg-cyan-800/30 shadow"><Lock className="w-5 h-5" /></Button>
-                      <Button size="sm" className="bg-[#181f2e] text-cyan-100 hover:bg-cyan-700/80 rounded-full font-bold shadow">Reset</Button>
-                      <Button size="icon" variant="ghost" className="bg-[#181f2e] text-pink-400 hover:bg-pink-900/30 shadow"><UserX className="w-5 h-5" /></Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
         <TabsContent value="irt">
-          <h2 className="text-xl font-bold mb-4">IRT & Penilaian</h2>
-          <form
-            className="max-w-xl bg-[#10172a] border border-cyan-900/40 rounded-lg p-6 space-y-4"
-            onSubmit={e => {
-              e.preventDefault();
-              toast.success("Pengaturan IRT & Penilaian berhasil disimpan!");
-            }}
-          >
-            <div>
-              <label className="block font-semibold mb-1">Aktifkan Model IRT</label>
-              <div className="flex gap-6 mb-2">
-                <div className="flex items-center gap-2">
-                  <Switch id="1pl" />
-                  <label htmlFor="1pl" className="text-white">1PL (Rasch)</label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="2pl" />
-                  <label htmlFor="2pl" className="text-white">2PL</label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch id="3pl" />
-                  <label htmlFor="3pl" className="text-white">3PL</label>
+          <div className="flex flex-col md:flex-row gap-8">
+            <form
+              className="max-w-xl bg-[#10172a] border border-cyan-900/40 rounded-lg p-6 space-y-4 flex-1"
+              onSubmit={e => {
+                e.preventDefault();
+                toast.success("Pengaturan IRT & Penilaian berhasil disimpan!");
+              }}
+            >
+              <div>
+                <label className="block font-semibold mb-1">Aktifkan Model IRT</label>
+                <div className="flex gap-6 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Switch id="1pl" />
+                    <label htmlFor="1pl" className="text-white">1PL (Rasch)</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="2pl" />
+                    <label htmlFor="2pl" className="text-white">2PL</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="3pl" />
+                    <label htmlFor="3pl" className="text-white">3PL</label>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Parameter IRT</label>
-              <div className="flex gap-2">
-                <input type="number" step="0.01" min="0" placeholder="a (discriminasi)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32" />
-                <input type="number" step="0.01" min="0" placeholder="b (kesulitan)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32" />
-                <input type="number" step="0.01" min="0" placeholder="c (tebakan)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32" />
+              <div>
+                <label className="block font-semibold mb-1">Parameter IRT</label>
+                <div className="flex gap-2">
+                  <input type="number" step="0.01" min="0" placeholder="a (discriminasi)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32 hide-number-spinner" />
+                  <input type="number" step="0.01" min="0" placeholder="b (kesulitan)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32 hide-number-spinner" />
+                  <input type="number" step="0.01" min="0" placeholder="c (tebakan)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32 hide-number-spinner" />
+                </div>
               </div>
+              <div>
+                <label className="block font-semibold mb-1">Bobot Skor</label>
+                <input type="number" min="0" placeholder="Bobot skor benar" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-40 hide-number-spinner" />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Passing Grade</label>
+                <input type="number" min="0" max="100" placeholder="Passing grade (%)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-40 hide-number-spinner" />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Skema Penilaian</label>
+                <input type="text" placeholder="Contoh: Benar +4, Salah 0, Kosong 0" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-full" />
+              </div>
+              <button type="submit" className="mt-2 px-6 py-2 rounded-md bg-cyan-700 hover:bg-cyan-800 font-bold text-white shadow">Simpan Pengaturan</button>
+            </form>
+            <div className="hidden md:block flex-1 bg-[#10172a] border border-cyan-900/40 rounded-lg p-6 h-fit">
+              <h3 className="text-lg font-bold mb-2 text-cyan-300">Tips & Info IRT</h3>
+              <ul className="list-disc ml-5 text-cyan-100 text-sm space-y-2">
+                <li><b>Apa itu IRT?</b> IRT (Item Response Theory) adalah metode penilaian modern yang mengukur kemampuan siswa berdasarkan karakteristik soal dan respons siswa, bukan sekadar jumlah benar.</li>
+                <li><b>Model IRT:</b>
+                  <ul className="list-disc ml-6">
+                    <li><b>1PL (Rasch):</b> Hanya mempertimbangkan tingkat kesulitan soal (b). Cocok untuk penilaian sederhana.</li>
+                    <li><b>2PL:</b> Mempertimbangkan kesulitan (b) dan diskriminasi soal (a). Cocok untuk soal dengan variasi kualitas.</li>
+                    <li><b>3PL:</b> Menambah parameter tebakan (c). Cocok untuk tes dengan kemungkinan menebak (misal: pilihan ganda).</li>
+                  </ul>
+                </li>
+                <li><b>Rekomendasi Pengisian Parameter (standar UTBK):</b>
+                  <ul className="list-disc ml-6">
+                    <li><b>a (Diskriminasi):</b> 0.8–1.5</li>
+                    <li><b>b (Kesulitan):</b> -3.0 (mudah) sampai +3.0 (sulit), rata-rata 0</li>
+                    <li><b>c (Tebakan):</b> 0.25 (untuk 4 opsi pilihan ganda)</li>
+                  </ul>
+                </li>
+                <li><b>Tips Pemilihan Model:</b>
+                  <ul className="list-disc ml-6">
+                    <li>Gunakan <b>1PL</b> jika ingin sederhana dan adil.</li>
+                    <li>Gunakan <b>2PL</b> jika ingin membedakan kualitas soal.</li>
+                    <li>Gunakan <b>3PL</b> untuk tes dengan banyak soal pilihan ganda.</li>
+                  </ul>
+                </li>
+                <li><b>Passing Grade & Skema Penilaian:</b> Passing grade UTBK biasanya 50–60%. Skema umum: Benar +4, Salah 0, Kosong 0.</li>
+              </ul>
             </div>
-            <div>
-              <label className="block font-semibold mb-1">Bobot Skor</label>
-              <input type="number" min="0" placeholder="Bobot skor benar" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-40" />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Passing Grade</label>
-              <input type="number" min="0" max="100" placeholder="Passing grade (%)" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-40" />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Skema Penilaian</label>
-              <input type="text" placeholder="Contoh: Benar +4, Salah 0, Kosong 0" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-full" />
-            </div>
-            <button type="submit" className="mt-2 px-6 py-2 rounded-md bg-cyan-700 hover:bg-cyan-800 font-bold text-white shadow">Simpan Pengaturan</button>
-          </form>
-        </TabsContent>
-        <TabsContent value="monitoring">
-          <h2 className="text-xl font-bold mb-4">Monitoring & Statistik</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-[#10172a] border border-cyan-900/40 rounded-lg p-4 flex flex-col items-center">
-              <AreaChart className="w-8 h-8 text-cyan-400 mb-2" />
-              <div className="text-2xl font-bold">1.234</div>
-              <div className="text-sm text-cyan-200">Total User Aktif</div>
-            </div>
-            <div className="bg-[#10172a] border border-cyan-900/40 rounded-lg p-4 flex flex-col items-center">
-              <Clock className="w-8 h-8 text-cyan-400 mb-2" />
-              <div className="text-2xl font-bold">87</div>
-              <div className="text-sm text-cyan-200">Sedang Tryout</div>
-            </div>
-            <div className="bg-[#10172a] border border-cyan-900/40 rounded-lg p-4 flex flex-col items-center">
-              <ShieldCheck className="w-8 h-8 text-cyan-400 mb-2" />
-              <div className="text-2xl font-bold">99%</div>
-              <div className="text-sm text-cyan-200">Sesi Aman</div>
-            </div>
-          </div>
-          <div className="bg-[#10172a] border border-cyan-900/40 rounded-lg p-4 mb-6">
-            <h3 className="font-bold mb-2">Aktivitas Live</h3>
-            <ul className="text-sm text-white space-y-1">
-              <li>👤 Siswa A mengerjakan Tryout Nasional 5</li>
-              <li>👤 Siswa B mengerjakan Tryout Saintek</li>
-              <li>👤 Guru Satu sedang membuat soal baru</li>
-            </ul>
-          </div>
-          <div className="bg-[#10172a] border border-cyan-900/40 rounded-lg p-4">
-            <h3 className="font-bold mb-2">Grafik Aktivitas (Mock)</h3>
-            <div className="h-32 flex items-center justify-center text-cyan-300">[Grafik Placeholder]</div>
           </div>
         </TabsContent>
         <TabsContent value="pengumuman">
           <h2 className="text-xl font-bold mb-4">Pengumuman & Notifikasi</h2>
           <div className="mb-4 flex gap-2">
-            <Button className="bg-cyan-700 hover:bg-cyan-800">+ Tambah Pengumuman</Button>
+            <Link to="/admin/announcements/create">
+              <Button className="bg-cyan-700 hover:bg-cyan-800">+ Tambah Pengumuman</Button>
+            </Link>
           </div>
           <div className="overflow-x-auto rounded-lg border border-cyan-900/40 bg-[#10172a]">
             <Table className={tableClassName}>
@@ -262,24 +213,6 @@ export default function AdminSettings() {
               </TableBody>
             </Table>
           </div>
-        </TabsContent>
-        <TabsContent value="keamanan">
-          <h2 className="text-xl font-bold mb-4">Keamanan</h2>
-          <form className="max-w-xl bg-[#10172a] border border-cyan-900/40 rounded-lg p-6 space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <Switch id="2fa" />
-              <label htmlFor="2fa" className="text-white font-semibold">Aktifkan Two-Factor Authentication (2FA)</label>
-            </div>
-            <div className="mb-2">
-              <label className="block font-semibold mb-1">Session Timeout (menit)</label>
-              <input type="number" min="1" max="180" placeholder="Contoh: 30" className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-32" />
-            </div>
-            <div className="mb-2">
-              <label className="block font-semibold mb-1">Pengaturan Keamanan Lainnya</label>
-              <input type="text" placeholder="Keterangan tambahan..." className="px-3 py-2 rounded-md bg-[#0f172a] border-2 border-cyan-900/40 text-white w-full" />
-            </div>
-            <button type="submit" className="mt-2 px-6 py-2 rounded-md bg-cyan-700 hover:bg-cyan-800 font-bold text-white shadow">Simpan Pengaturan</button>
-          </form>
         </TabsContent>
       </Tabs>
     </div>

@@ -25,6 +25,8 @@ export default function Settings() {
     notif: true,
   });
   const [password, setPassword] = useState({ lama: "", baru: "", konfirmasi: "" });
+  const [targetScore, setTargetScore] = useState(() => localStorage.getItem('target_score') || '');
+  const [targetError, setTargetError] = useState('');
 
   function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
@@ -45,8 +47,18 @@ export default function Settings() {
     }
   }
 
+  function handleTargetScoreChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setTargetScore(e.target.value);
+    setTargetError('');
+  }
+
   function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
+    if (!targetScore || isNaN(Number(targetScore)) || Number(targetScore) < 0) {
+      setTargetError('Skor target harus berupa angka positif');
+      return;
+    }
+    localStorage.setItem('target_score', targetScore);
     toast.success("Profil berhasil diperbarui!");
   }
 
@@ -88,6 +100,19 @@ export default function Settings() {
           <Input name="jurusan" value={profile.jurusan} onChange={handleProfileChange} placeholder="Jurusan Tujuan" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
           <Input name="kota" value={profile.kota} onChange={handleProfileChange} placeholder="Kota Domisili" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
         </div>
+        <div className="flex flex-col md:flex-row gap-4 items-center mb-2">
+          <Input
+            type="number"
+            min={0}
+            value={targetScore}
+            onChange={handleTargetScoreChange}
+            className={(targetError ? 'border-red-500 ' : '') + 'bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl hide-number-spinner'}
+            placeholder="Skor Target (misal: 800)"
+            style={{ maxWidth: 220 }}
+          />
+          {targetError && <span className="text-sm text-red-400">{targetError}</span>}
+        </div>
+        <div className="text-xs text-blue-200 mb-2">Skor target akan digunakan sebagai acuan pada dashboard dan progress belajar Anda.</div>
         <Button type="submit" className="bg-cyan-700 hover:bg-cyan-800 rounded-full font-bold shadow">Simpan Profil</Button>
       </form>
       {/* Keamanan Akun */}

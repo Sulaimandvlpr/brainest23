@@ -2,9 +2,26 @@ import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function Profile() {
   const { user } = useAuth();
+  const [targetScore, setTargetScore] = React.useState(() => {
+    return localStorage.getItem('target_score') || '';
+  });
+  const [editMode, setEditMode] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  const handleSave = () => {
+    if (!targetScore || isNaN(Number(targetScore)) || Number(targetScore) < 0) {
+      setError('Skor target harus berupa angka positif');
+      return;
+    }
+    localStorage.setItem('target_score', targetScore);
+    setEditMode(false);
+    setError('');
+  };
 
   if (!user) {
     return (
@@ -41,6 +58,31 @@ export default function Profile() {
           <li><span className="font-semibold text-white">Email:</span> {user.email}</li>
           <li><span className="font-semibold text-white">Role:</span> {user.role === 'admin' ? 'Admin' : user.role === 'guru' ? 'Guru' : 'Siswa'}</li>
         </ul>
+      </div>
+      <div className="bg-blue-3d/60 rounded-xl p-6 shadow-3d mt-6">
+        <h2 className="text-lg font-semibold mb-2">Skor Target</h2>
+        {!editMode ? (
+          <div className="flex items-center gap-4">
+            <span className="text-2xl font-bold text-cyan-200">{targetScore || 'Belum diatur'}</span>
+            <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>Ubah</Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <Input
+              type="number"
+              min={0}
+              value={targetScore}
+              onChange={e => setTargetScore(e.target.value)}
+              className={error ? 'border-red-500' : ''}
+              placeholder="Masukkan skor target (misal: 800)"
+              style={{ width: 180 }}
+            />
+            <Button size="sm" variant="3d" onClick={handleSave}>Simpan</Button>
+            <Button size="sm" variant="outline" onClick={() => { setEditMode(false); setError(''); }}>Batal</Button>
+          </div>
+        )}
+        {error && <div className="text-sm text-red-400 mt-1">{error}</div>}
+        <div className="text-xs text-blue-200 mt-2">Skor target akan digunakan sebagai acuan pada dashboard dan progress belajar Anda.</div>
       </div>
     </div>
   );

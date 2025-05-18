@@ -5,10 +5,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Sun, Moon, UserCircle } from "lucide-react";
+import { Sun, Moon, UserCircle, FileText, Star, Trophy, Target } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 import {
   BarChart,
@@ -16,7 +17,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -118,6 +119,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null;
 };
+
+// Mapping singkatan subtest
+const subtestShortMap: Record<string, string> = {
+  "Penalaran Matematika (PM)": "PM",
+  "Literasi Bahasa Indonesia (LBI)": "LBI",
+  "Literasi Bahasa Inggris (LBE)": "LBE",
+  "Penalaran Umum (PU)": "PU",
+  "Pengetahuan Kuantitatif (PK)": "PK",
+  "Pemahaman Bacaan dan Menulis (PBM)": "PBM",
+  "Pengetahuan dan Pemahaman Umum (PPU)": "PPU",
+};
+
+// Data chart dengan label singkatan
+const subjectDataShort = subjectData.map(item => ({
+  ...item,
+  subject: subtestShortMap[item.subject] || item.subject,
+}));
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -248,10 +266,8 @@ export default function Dashboard() {
             </DialogContent>
           </Dialog>
         <div>
-            <h2 className="text-4xl font-bold tracking-tight text-white drop-shadow">Dashboard</h2>
-            <p className="text-blue-200 mb-2 mt-2 text-left text-lg">
-              Selamat datang kembali, {user?.name || "User"}! Berikut adalah ringkasan performa tryout Anda.
-            </p>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2 drop-shadow">Dashboard</h1>
+            <p className="text-xl md:text-2xl font-semibold text-cyan-200 drop-shadow">Selamat datang kembali, {user?.name || 'Siswa User'}! Berikut adalah ringkasan performa tryout Anda.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -262,42 +278,76 @@ export default function Dashboard() {
       </div>
 
       {/* Progress Bar dengan gradient dan animasi */}
-      <div className="mx-4 md:mx-12 my-6">
-        <div className="rounded-2xl bg-blue-3d/60 shadow-3d p-4">
+      <div className="max-w-4xl mx-auto mt-6 mb-8">
+        <Card className="bg-[#10172a] border border-cyan-900/40 rounded-2xl shadow-3d p-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-white drop-shadow">Progress Tryout</h2>
-            <span className="text-white font-bold">{progress}%</span>
+            <span className="text-2xl font-bold text-white">Progress Tryout</span>
+            <span className="text-xl font-bold text-cyan-300">{progress}%</span>
           </div>
-          <div className="w-full h-5 bg-blue-3d-light/30 rounded-xl overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 rounded-xl shadow-lg transition-all duration-500 flex items-center justify-end pr-3"
-              style={{ width: `${progress}%` }}
-            >
-              <span className="text-xs text-white font-bold drop-shadow">{progress}%</span>
+          <div className="relative w-full h-8 bg-cyan-900/30 rounded-full overflow-hidden">
+            <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-end transition-all duration-700" style={{ width: `${progress}%` }}>
+              <span className="text-white font-bold text-lg pr-4 drop-shadow">{progress}%</span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Cards statistik dengan ikon dan warna berbeda */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-4 md:px-12 my-8">
-        {[
-          { icon: '📝', iconBg: 'from-blue-400 to-cyan-400', title: "Total Tryout", value: 4, desc: "+1 dari bulan lalu" },
-          { icon: '⭐', iconBg: 'from-yellow-400 to-yellow-300', title: "Rata-rata Skor", value: 700, desc: "+50 dari rata-rata awal" },
-          { icon: '🏆', iconBg: 'from-yellow-700 to-yellow-500', title: "Skor Tertinggi", value: 750, desc: "Tryout Nasional 4" },
-          { icon: '🎯', iconBg: 'from-green-500 to-cyan-400', title: "Skor Target", value: 800, desc: "Perlu peningkatan 50 poin" },
-        ].map((item, idx) => (
-          <Card key={item.title} className="rounded-2xl shadow-3d border border-cyan/20 bg-blue-3d-light/60 p-6 flex flex-col gap-2 items-start hover:scale-[1.02] transition-all duration-300">
-            <div className="flex items-center gap-3 mb-2">
-              <div className={`h-12 w-12 rounded-full flex items-center justify-center shadow-3d bg-gradient-to-br ${item.iconBg}`}>
-                <span className="text-2xl">{item.icon}</span>
-              </div>
-              <span className="font-bold text-lg text-white">{item.title}</span>
-            </div>
-            <div className="text-3xl font-extrabold text-white">{item.value}</div>
-            <div className="text-sm text-blue-200">{item.desc}</div>
+      {/* Statistik Card */}
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <TooltipProvider>
+          <Card className="bg-[#10172a] border border-cyan-900/40 rounded-2xl shadow-3d hover:shadow-3d-hover transition-transform hover:-translate-y-1">
+            <CardContent className="flex flex-col items-center py-8">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FileText className="w-10 h-10 text-cyan-400 mb-2" />
+                </TooltipTrigger>
+                <TooltipContent>Total tryout yang telah Anda ikuti</TooltipContent>
+              </Tooltip>
+              <div className="text-lg font-bold text-white mb-1">Total Tryout</div>
+              <div className="text-4xl font-extrabold text-cyan-200 mb-1">4</div>
+              <div className="text-sm text-cyan-400">+1 dari bulan lalu</div>
+            </CardContent>
           </Card>
-        ))}
+          <Card className="bg-[#10172a] border border-cyan-900/40 rounded-2xl shadow-3d hover:shadow-3d-hover transition-transform hover:-translate-y-1">
+            <CardContent className="flex flex-col items-center py-8">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Star className="w-10 h-10 text-yellow-400 mb-2" />
+                </TooltipTrigger>
+                <TooltipContent>Rata-rata skor tryout Anda</TooltipContent>
+              </Tooltip>
+              <div className="text-lg font-bold text-white mb-1">Rata-rata Skor</div>
+              <div className="text-4xl font-extrabold text-yellow-200 mb-1">700</div>
+              <div className="text-sm text-cyan-400">+50 dari rata-rata awal</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#10172a] border border-cyan-900/40 rounded-2xl shadow-3d hover:shadow-3d-hover transition-transform hover:-translate-y-1">
+            <CardContent className="flex flex-col items-center py-8">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Trophy className="w-10 h-10 text-orange-400 mb-2" />
+                </TooltipTrigger>
+                <TooltipContent>Skor tertinggi yang pernah Anda raih</TooltipContent>
+              </Tooltip>
+              <div className="text-lg font-bold text-white mb-1">Skor Tertinggi</div>
+              <div className="text-4xl font-extrabold text-orange-200 mb-1">750</div>
+              <div className="text-sm text-cyan-400">Tryout Nasional 4</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#10172a] border border-cyan-900/40 rounded-2xl shadow-3d hover:shadow-3d-hover transition-transform hover:-translate-y-1">
+            <CardContent className="flex flex-col items-center py-8">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Target className="w-10 h-10 text-pink-400 mb-2" />
+                </TooltipTrigger>
+                <TooltipContent>Skor target yang ingin Anda capai</TooltipContent>
+              </Tooltip>
+              <div className="text-lg font-bold text-white mb-1">Skor Target</div>
+              <div className="text-4xl font-extrabold text-pink-200 mb-1">800</div>
+              <div className="text-sm text-cyan-400">Perlu peningkatan 50 poin</div>
+            </CardContent>
+          </Card>
+        </TooltipProvider>
       </div>
 
       {/* Grafik Perkembangan Skor & Performa Mata Pelajaran */}
@@ -315,7 +365,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="name" stroke="#cbd5e1" fontWeight={600} />
                 <YAxis domain={[500, 1000]} stroke="#cbd5e1" fontWeight={600} />
-                <Tooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} />
                 <Legend />
                 <Line
                   type="monotone"
@@ -349,11 +399,11 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={subjectData}>
+              <BarChart data={subjectDataShort}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="subject" stroke="#cbd5e1" fontWeight={600} />
                 <YAxis domain={[0, 100]} stroke="#cbd5e1" fontWeight={600} />
-                <Tooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} />
                 <Bar
                   dataKey="score"
                   fill="url(#barGradient)"

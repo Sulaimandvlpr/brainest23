@@ -38,12 +38,13 @@ import PackageCreate from "./pages/admin/PackageCreate";
 import UserManagement from "./pages/admin/UserManagement";
 import Statistics from "./pages/admin/Statistics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import UserCreate from "./pages/admin/UserCreate";
+import AnnouncementCreate from "./pages/admin/AnnouncementCreate";
 
 import SpaceBackground from "./components/three/SpaceBackground";
 import GuruLayout from "./components/layout/GuruLayout";
 import GuruQuestions from "./pages/guru/GuruQuestions";
 import GuruQuestionCreate from "./pages/guru/GuruQuestionCreate";
-import GuruPackages from "./pages/guru/GuruPackages";
 import GuruStatistics from "./pages/guru/GuruStatistics";
 import GuruSettings from "./pages/guru/GuruSettings";
 import GuruLeaderboard from "./pages/guru/GuruLeaderboard";
@@ -86,9 +87,11 @@ const App = () => (
                 <Route path="packages" element={<TryoutPackages />} />
                 <Route path="packages/create" element={<PackageCreate />} />
                 <Route path="users" element={<UserManagement />} />
+                <Route path="users/create" element={<UserCreate />} />
                 <Route path="statistics" element={<Statistics />} />
                 <Route path="leaderboard" element={<LeaderboardXP />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="announcements/create" element={<AnnouncementCreate />} />
               </Route>
 
               <Route path="/exam/:id" element={<ExamInterface />} />
@@ -99,7 +102,6 @@ const App = () => (
                 <Route index element={<Navigate to="/guru/statistics" replace />} />
                 <Route path="questions" element={<GuruQuestions />} />
                 <Route path="questions/create" element={<GuruQuestionCreate />} />
-                <Route path="packages" element={<GuruPackages />} />
                 <Route path="statistics" element={<GuruStatistics />} />
                 <Route path="settings" element={<GuruSettings />} />
                 <Route path="leaderboard" element={<GuruLeaderboard />} />
