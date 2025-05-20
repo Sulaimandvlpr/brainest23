@@ -10,13 +10,14 @@ interface SubtestPageProps {
   soal: any[];
   attemptId: string;
   answersInit?: { answers: (string|null)[], ragu: boolean[] };
+  onFinish?: () => void;
 }
 
 function getLocalKey(attemptId: string, subtestKey: string) {
   return `exam_${attemptId}_${subtestKey}`;
 }
 
-export default function SubtestPage({ subtest, totalSubtest, subtestIdx, locked, onSubmit, soal, attemptId, answersInit }: SubtestPageProps) {
+export default function SubtestPage({ subtest, totalSubtest, subtestIdx, locked, onSubmit, soal, attemptId, answersInit, onFinish }: SubtestPageProps) {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(string | null)[]>(answersInit?.answers || Array(subtest.count).fill(null));
   const [ragu, setRagu] = useState<boolean[]>(answersInit?.ragu || Array(subtest.count).fill(false));
@@ -66,6 +67,7 @@ export default function SubtestPage({ subtest, totalSubtest, subtestIdx, locked,
   const confirmSubmit = async () => {
     setShowConfirm(false);
     onSubmit(subtestIdx, { answers, ragu }, timer);
+    if (onFinish) onFinish();
   };
 
   // UI/UX colors

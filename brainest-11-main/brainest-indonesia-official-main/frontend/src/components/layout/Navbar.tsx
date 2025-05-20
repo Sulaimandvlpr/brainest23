@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Menu, X, Bell, Search, ChevronDown } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
@@ -49,7 +48,6 @@ export function Navbar() {
             </Link>
           </nav>
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
             {/* Notifikasi & Avatar User */}
             {user && (
               <>

@@ -40,6 +40,7 @@ import Statistics from "./pages/admin/Statistics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import UserCreate from "./pages/admin/UserCreate";
 import AnnouncementCreate from "./pages/admin/AnnouncementCreate";
+import TryoutSchedule from "./pages/admin/TryoutSchedule";
 
 import SpaceBackground from "./components/three/SpaceBackground";
 import GuruLayout from "./components/layout/GuruLayout";
@@ -58,7 +59,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <SpaceBackground />
+          {/* <SpaceBackground /> */}
           <BrowserRouter>
             <Routes>
               <Route element={<MainLayout />}>
@@ -86,6 +87,7 @@ const App = () => (
                 <Route path="questions/create" element={<QuestionCreate />} />
                 <Route path="packages" element={<TryoutPackages />} />
                 <Route path="packages/create" element={<PackageCreate />} />
+                <Route path="tryout-schedule" element={<TryoutSchedule />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="users/create" element={<UserCreate />} />
                 <Route path="statistics" element={<Statistics />} />

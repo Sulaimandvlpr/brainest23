@@ -119,112 +119,106 @@ export default function TryoutLive() {
 
   return (
     <div className="max-w-3xl mx-auto py-8">
-      <h2 className="text-3xl font-bold mb-8 text-center text-white drop-shadow">Tryout Live</h2>
+      <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">Tryout Live</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {tryoutLiveList.map((item) => (
+        {tryoutLiveList.filter(item => item.status === 'upcoming' || item.status === 'live').map((item) => (
           <div
             key={item.id}
             className={
-              `relative group transition-all duration-300 ${
-                item.status === 'live'
-                  ? 'shadow-3d border-2 border-cyan-400/60 animate-[glow_2s_ease-in-out_infinite] hover:scale-105 hover:brightness-110'
-                  : 'shadow-3d border border-cyan/20 bg-blue-3d/80 hover:scale-102'
-              } rounded-2xl`
+              `relative bg-[#11182c] border border-blue-900/40 rounded-3xl shadow-[0_2px_16px_0_rgba(34,211,238,0.07)] p-7 flex flex-col justify-between min-h-[220px] transition-all duration-200 hover:shadow-[0_4px_32px_0_rgba(34,211,238,0.13)]`
             }
-            style={item.status === 'live' ? { boxShadow: '0 0 24px 4px #22d3ee, 0 0 60px 8px #2563eb44' } : {}}
           >
             {/* Badge status di pojok kanan atas */}
-            <div className="absolute top-3 right-3 z-10">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      {item.status === 'live' && <Badge className="bg-red-500 text-white animate-pulse">LIVE</Badge>}
-                      {item.status === 'upcoming' && <Badge className="bg-yellow-400 text-yellow-900">Segera</Badge>}
-                      {item.status === 'finished' && <Badge className="bg-gray-400 text-white">Selesai</Badge>}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {item.status === 'live' && 'Tryout sedang berlangsung'}
-                    {item.status === 'upcoming' && 'Tryout akan segera dimulai'}
-                    {item.status === 'finished' && 'Tryout telah selesai'}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            <div className="absolute top-5 right-5 z-10">
+              {item.status === 'live' && <Badge className="bg-red-500 text-white px-4 py-1 rounded-full text-sm font-semibold tracking-wide">LIVE</Badge>}
+              {item.status === 'upcoming' && <Badge className="bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-sm font-semibold tracking-wide">Segera</Badge>}
+              {item.status === 'finished' && <Badge className="bg-gray-400 text-white px-4 py-1 rounded-full text-sm font-semibold tracking-wide">Selesai</Badge>}
             </div>
-            <Card className="bg-transparent border-none shadow-none">
-              <CardHeader className="flex flex-col gap-2 pb-2">
-                <CardTitle className="text-lg flex items-center gap-2 text-white">
-                  {item.name}
-                </CardTitle>
-                <CardDescription className="flex items-center gap-2 text-blue-200">
-                  <Clock className="w-4 h-4" /> {item.date}
-                  <Users className="w-4 h-4 ml-4" /> {item.peserta} peserta
-                </CardDescription>
-                {item.status === 'upcoming' && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-cyan-300 font-bold">Countdown:</span>
-                    <span className="font-mono text-cyan-200 text-lg">{countdowns[item.id] || '00j 00m 00d'}</span>
-                    <Button size="icon" variant="outline" onClick={() => handleReminder(item.id)} title="Ingatkan Saya">
-                      <Bell className="w-5 h-5" />
-                    </Button>
-                    {reminder === item.id && <span className="text-green-400 text-xs ml-2 animate-pulse">Reminder diaktifkan!</span>}
-                  </div>
-                )}
-                {item.status === 'live' && joined === item.id && (
-                  <span className="text-green-400 font-bold mt-2">Status: Sudah Join</span>
-                )}
-                {item.status === 'live' && joined !== item.id && (
-                  <span className="text-yellow-400 font-bold mt-2">Status: Belum Join</span>
-                )}
-              </CardHeader>
-              <CardContent className="flex flex-col gap-2 items-center">
-                <Button
-                  onClick={() => handleJoin(item)}
-                  disabled={item.status === 'finished'}
-                  className="w-full font-bold"
-                  variant={item.status === 'live' ? '3d' : 'outline'}
-                >
-                  {item.status === 'live' ? (joined === item.id ? 'Masuk Ruang Tryout' : 'Gabung Sekarang') : item.status === 'upcoming' ? 'Daftar' : 'Selesai'}
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex-1">
+              <div className="text-xl font-bold text-white mb-2">{item.name}</div>
+              <div className="flex items-center gap-6 text-cyan-200 text-base mb-3">
+                <span className="flex items-center gap-2"><Clock className="w-5 h-5" /> {item.date}</span>
+                <span className="flex items-center gap-2"><Users className="w-5 h-5" /> {item.peserta} peserta</span>
+              </div>
+              {item.status === 'upcoming' && (
+                <div className="flex items-center gap-2 mt-2 text-sm">
+                  <span className="text-cyan-700 font-semibold">Countdown:</span>
+                  <span className="font-mono text-cyan-700 text-base">{countdowns[item.id] || '00j 00m 00d'}</span>
+                  <Button size="icon" variant="outline" onClick={() => handleReminder(item.id)} title="Ingatkan Saya">
+                    <Bell className="w-5 h-5" />
+                  </Button>
+                  {reminder === item.id && <span className="text-green-600 text-xs ml-2">Reminder diaktifkan!</span>}
+                </div>
+              )}
+              {item.status === 'live' && joined === item.id && (
+                <span className="text-green-600 font-semibold mt-2 block">Status: Sudah Join</span>
+              )}
+              {item.status === 'live' && joined !== item.id && (
+                <span className="text-yellow-600 font-semibold mt-2 block">Status: Belum Join</span>
+              )}
+            </div>
+            <div className="mt-8">
+              <Button
+                onClick={() => handleJoin(item)}
+                disabled={item.status === 'finished'}
+                className="w-full font-semibold text-lg rounded-full py-3 bg-cyan-500 text-white border-0 shadow-none hover:bg-cyan-400 transition-all duration-150"
+                variant="ghost"
+              >
+                {item.status === 'live' ? (joined === item.id ? 'Masuk Ruang Tryout' : 'Gabung Sekarang') : item.status === 'upcoming' ? 'Daftar' : 'Selesai'}
+              </Button>
+            </div>
           </div>
         ))}
       </div>
       {/* Modal Leaderboard & Info Tryout Live */}
       {selected && open && (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg bg-[#11182c] border border-blue-900/40 rounded-3xl shadow-[0_2px_16px_0_rgba(34,211,238,0.07)] p-8">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">{selected?.name}</DialogTitle>
+              <DialogTitle className="text-2xl font-bold text-white mb-2">{selected?.name}</DialogTitle>
             </DialogHeader>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Clock className="w-4 h-4" /> <span>{selected.date}</span>
-                <Users className="w-4 h-4 ml-4" /> <span>{selected.peserta} peserta</span>
-                {selected.status === 'live' && <Badge className="bg-red-500 text-white animate-pulse ml-4">LIVE</Badge>}
-              </div>
-              <div className="mb-2 font-semibold text-blue-900">Leaderboard Real-time</div>
-              <div className="space-y-1">
-                {selected.leaderboard.map((row, i) => (
-                  <div key={row.name} className={`flex items-center gap-2 p-2 rounded ${row.isUser ? 'bg-cyan-100 font-bold' : 'hover:bg-cyan-50'}`}>
-                    <span className="w-6 text-center">{i === 0 ? <Trophy className="w-5 h-5 text-yellow-400" /> : i + 1}</span>
-                    <span className="flex-1">{row.name}</span>
-                    <span className="font-mono text-cyan-700 font-bold">{row.score}</span>
-                  </div>
-                ))}
-              </div>
-              {selected.status === 'live' && (
-                <div className="mt-4 text-center text-cyan-700 font-semibold">Tryout sedang berlangsung! Selesaikan soal secepatnya untuk naik peringkat.</div>
-              )}
-              {selected.status === 'upcoming' && (
-                <div className="mt-4 text-center text-yellow-700 font-semibold">Tryout akan dimulai pada jadwal yang tertera. Siapkan dirimu!</div>
-              )}
-              {selected.status === 'finished' && (
-                <div className="mt-4 text-center text-gray-700 font-semibold">Tryout telah selesai. Lihat peringkat dan analisis hasilmu!</div>
-              )}
+            <div className="flex items-center gap-4 mb-4 text-cyan-200 text-base">
+              <Clock className="w-5 h-5" /> <span>{selected.date}</span>
+              <Users className="w-5 h-5 ml-4" /> <span>{selected.peserta} peserta</span>
+              {selected.status === 'live' && <Badge className="bg-red-500 text-white ml-4 px-4 py-1 rounded-full text-sm font-semibold tracking-wide">LIVE</Badge>}
             </div>
+            <div className="mb-3 text-lg font-bold text-cyan-400">Leaderboard Real-time</div>
+            <div className="overflow-x-auto rounded-xl">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-cyan-700 text-base">
+                    <th className="py-2 pl-4">Peringkat</th>
+                    <th className="py-2">Nama</th>
+                    <th className="py-2 pr-4 text-right">Skor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selected.leaderboard.slice(0, 3).map((row, i) => (
+                    <tr
+                      key={row.name}
+                      className={`transition-all ${row.isUser ? 'bg-cyan-100/20 font-bold text-cyan-200' : 'hover:bg-blue-900/30 text-white'} ${i === 0 ? 'text-yellow-400' : ''}`}
+                    >
+                      <td className="py-2 pl-4 text-lg">
+                        {i === 0 ? <Trophy className="w-6 h-6 inline-block mr-1 align-middle text-yellow-400" /> : i + 1}
+                      </td>
+                      <td className="py-2">
+                        {row.name}
+                      </td>
+                      <td className="py-2 pr-4 text-right font-mono text-cyan-400 text-lg">{row.score}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {selected.status === 'live' && (
+              <div className="mt-6 text-center text-cyan-400 font-semibold text-lg">Tryout sedang berlangsung! Selesaikan soal secepatnya untuk naik peringkat.</div>
+            )}
+            {selected.status === 'upcoming' && (
+              <div className="mt-6 text-center text-yellow-400 font-semibold text-lg">Tryout akan dimulai pada jadwal yang tertera. Siapkan dirimu!</div>
+            )}
+            {selected.status === 'finished' && (
+              <div className="mt-6 text-center text-gray-400 font-semibold text-lg">Tryout telah selesai. Lihat peringkat dan analisis hasilmu!</div>
+            )}
           </DialogContent>
         </Dialog>
       )}

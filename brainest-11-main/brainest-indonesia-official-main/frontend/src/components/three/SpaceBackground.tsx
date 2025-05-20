@@ -1,14 +1,11 @@
-import { Canvas } from "@react-three/fiber";
-// import Planets from "./Planets";
-// import Brain from "./Brain";
+// WARNING: JANGAN IMPORT ATAU RENDER FILE INI DI PRODUCTION!
+// SpaceBackground menyebabkan error WebGL context pada device/browser yang tidak support WebGL/3D.
+// Pastikan semua import dan render SpaceBackground sudah dinonaktifkan di App.tsx dan file lain.
 
 export default function SpaceBackground() {
-  return (
-    <Canvas camera={{ position: [0, 0, 18], fov: 60 }} style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-      <ambientLight intensity={0.7} />
-      <pointLight position={[10, 10, 10]} intensity={1.2} />
-      {/* <Planets /> */}
-      {/* <Brain position={[0, 6, -10]} /> */}
-    </Canvas>
-  );
+  if (typeof window !== 'undefined') {
+    // Tampilkan warning di console jika komponen ini dirender
+    console.warn('SpaceBackground dinonaktifkan: Jangan gunakan komponen ini di production karena menyebabkan error WebGL pada banyak device/browser.');
+  }
+  return null;
 } 

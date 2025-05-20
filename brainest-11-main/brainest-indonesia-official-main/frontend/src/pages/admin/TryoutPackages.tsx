@@ -79,7 +79,7 @@ const AVAILABLE_SUBTESTS: SubtestData[] = [
 ];
 
 // Mock data for packages
-const PACKAGES: TryoutPackage[] = [
+export const PACKAGES: TryoutPackage[] = [
   {
     id: "1",
     name: "UTBK Saintek 2023",
@@ -261,7 +261,7 @@ const PackageProgressCard = ({
           </div>
           <div className="flex items-center gap-1">
             <span>📅</span>
-            <span>{pkg.createdAt}</span>
+            <span className="text-nowrap">{formatTanggal(pkg.createdAt)}</span>
           </div>
         </div>
       </CardContent>
@@ -352,6 +352,15 @@ const MonitoringSection = ({
     </div>
   );
 };
+
+// Tambahkan fungsi format tanggal
+function formatTanggal(dateStr: string) {
+  const d = new Date(dateStr);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
 
 export default function TryoutPackages() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -624,22 +633,14 @@ export default function TryoutPackages() {
                   <p className="text-sm text-muted-foreground mb-4">
                     {pkg.description}
                   </p>
-                  <div className="grid grid-cols-2 gap-2 text-xs mb-4">
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>{pkg.totalQuestions} soal</span>
+                  <div className="flex flex-col items-center gap-1 mb-4">
+                    <div className="flex items-center gap-4 text-xs font-medium text-cyan-100">
+                      <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5 text-cyan-300" />{pkg.totalQuestions} soal</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-cyan-300" />{pkg.duration} menit</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>{pkg.duration} menit</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>{pkg.createdAt}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>{pkg.stats.enrolled} pendaftar</span>
+                    <div className="flex items-center gap-1 text-[11px] text-cyan-300 mt-1">
+                      <Calendar className="h-3 w-3 text-cyan-400" />
+                      <span className="text-nowrap">{formatTanggal(pkg.createdAt)}</span>
                     </div>
                   </div>
                   

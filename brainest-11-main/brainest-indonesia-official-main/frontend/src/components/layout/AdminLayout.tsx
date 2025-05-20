@@ -8,7 +8,8 @@ import {
   FilePlus, 
   Settings, 
   Users,
-  LogOut
+  LogOut,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -79,6 +80,15 @@ export function AdminLayout() {
               )}>
                 <Database className="h-5 w-5" />
                 <span>Paket Tryout</span>
+              </Link>
+              <Link to="/admin/tryout-schedule" className={cn(
+                "admin-sidebar-link flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 relative hover:scale-105 hover:shadow-[0_0_16px_0_rgba(34,211,238,0.25)] hover:bg-cyan-900/20",
+                location.pathname.startsWith("/admin/tryout-schedule") ?
+                  "bg-gradient-to-r from-cyan-700/80 to-blue-700/80 text-white shadow-lg border-l-4 border-cyan-400 ring-2 ring-cyan-300/30" :
+                  "text-cyan-100 hover:text-white"
+              )}>
+                <Calendar className="h-5 w-5" />
+                <span>Jadwal Live Tryout</span>
               </Link>
               <Link to="/admin/users" className={cn(
                 "admin-sidebar-link flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 relative hover:scale-105 hover:shadow-[0_0_16px_0_rgba(34,211,238,0.25)] hover:bg-cyan-900/20",
