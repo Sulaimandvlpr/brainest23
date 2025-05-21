@@ -50,6 +50,9 @@ import GuruStatistics from "./pages/guru/GuruStatistics";
 import GuruSettings from "./pages/guru/GuruSettings";
 import GuruLeaderboard from "./pages/guru/GuruLeaderboard";
 
+import TryoutSelesai from "./pages/TryoutSelesai";
+import AnalisaTryout from "./pages/AnalisaTryout";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -98,6 +101,8 @@ const App = () => (
 
               <Route path="/exam/:id" element={<ExamInterface />} />
               <Route path="/exam/result/:id" element={<ExamResult />} />
+              <Route path="/tryout-selesai" element={<TryoutSelesai />} />
+              <Route path="/analisa-tryout" element={<AnalisaTryout />} />
               
               {/* Guru Panel Routes */}
               <Route path="/guru" element={<GuruLayout />}>

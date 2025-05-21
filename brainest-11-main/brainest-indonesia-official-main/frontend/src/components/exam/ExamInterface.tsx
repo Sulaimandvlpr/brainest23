@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const subtests = [
   { name: "Penalaran Umum (PU)", count: 30 },
@@ -60,6 +61,7 @@ const playIcon = (
 
 const ExamInterface = () => {
   // Semua hooks harus di atas!
+  const navigate = useNavigate();
   const [agreed, setAgreed] = useState(true); // langsung true agar langsung ke pengerjaan
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState(Array(35).fill(null));
@@ -339,7 +341,7 @@ const ExamInterface = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 18, marginTop: 18 }}>
               <button onClick={()=>setShowConfirm(false)} style={{ background: '#fff', color: blueMain, border: `2px solid ${blueMain}`, borderRadius: 8, padding: '10px 32px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Batal</button>
-              <button onClick={()=>{/* TODO: submit/akhiri tryout */}} style={{ background: blueMain, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 32px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Ya, Akhiri</button>
+              <button onClick={() => navigate('/tryout-selesai', { state: { answered: answeredCount, flagged: raguCount, unanswered: belumCount } })} style={{ background: blueMain, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 32px', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>Ya, Akhiri</button>
             </div>
           </div>
         </div>
