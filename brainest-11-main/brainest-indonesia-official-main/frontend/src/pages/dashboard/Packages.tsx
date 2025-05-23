@@ -315,7 +315,7 @@ function TryoutCard({ package: pkg }: TryoutCardProps) {
         return {
           text: "Mulai Tryout",
           variant: "default" as const,
-          href: `/exam/${pkg.id}`
+          href: `/exam/${pkg.id}/rules`
         };
       case "completed":
         return {

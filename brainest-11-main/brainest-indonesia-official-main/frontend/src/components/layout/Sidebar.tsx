@@ -57,6 +57,11 @@ export function Sidebar() {
       icon: <Book className="h-5 w-5" />,
       badge: 2,
     },
+    {
+      href: '/dashboard/leaderboard',
+      label: 'Leaderboard',
+      icon: <Trophy className="h-5 w-5" />,
+    },
     ...((user?.role !== 'siswa') ? [
       {
         href: '/dashboard/leaderboard-xp',

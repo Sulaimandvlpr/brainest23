@@ -28,6 +28,7 @@ import DashboardGuru from "./pages/dashboard/DashboardGuru";
 
 import ExamInterface from "./components/exam/ExamInterface";
 import ExamResult from "./components/exam/ExamResult";
+import ExamRules from "./pages/exam/ExamRules";
 
 // Admin Panel Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -80,6 +81,7 @@ const App = () => (
                 <Route path="profile" element={<Profile />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="leaderboard-xp" element={<LeaderboardXP />} />
+                <Route path="leaderboard" element={<Navigate to="/dashboard/leaderboard-xp" replace />} />
                 <Route path="activity-log" element={<ActivityLog />} />
               </Route>
               
@@ -99,6 +101,7 @@ const App = () => (
                 <Route path="announcements/create" element={<AnnouncementCreate />} />
               </Route>
 
+              <Route path="/exam/:id/rules" element={<ExamRules />} />
               <Route path="/exam/:id" element={<ExamInterface />} />
               <Route path="/exam/result/:id" element={<ExamResult />} />
               <Route path="/tryout-selesai" element={<TryoutSelesai />} />

@@ -1,12 +1,68 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import Select from 'react-select';
 
-const universitasList = ["UI", "ITB", "UGM", "UNPAD", "IPB", "ITS", "UNDIP", "UNS", "BINUS", "Telkom University"];
-const jurusanList = ["Kedokteran", "Teknik Informatika", "Hukum", "Manajemen", "Psikologi", "Ilmu Komunikasi", "Akuntansi", "Arsitektur"];
-const kotaList = ["Jakarta", "Bandung", "Yogyakarta", "Surabaya", "Semarang", "Medan", "Makassar"];
+// Dummy data universitas dan prodi
+const universitasList = [
+  { label: "Universitas Indonesia (UI)", value: "ui", logo: "https://www.pngkit.com/png/full/406-4061748_logo-ui-png-universitas-indonesia.png" },
+  { label: "Institut Teknologi Bandung (ITB)", value: "itb", logo: "https://upload.wikimedia.org/wikipedia/id/0/0a/Lambang_ITB.png" },
+  { label: "Universitas Gadjah Mada (UGM)", value: "ugm", logo: "https://upload.wikimedia.org/wikipedia/id/9/9f/Logo_Universitas_Gadjah_Mada.png" },
+];
+const prodiList = {
+  ui: [
+    { label: "Teknik Informatika", value: "informatika" },
+    { label: "Kedokteran", value: "kedokteran" },
+    { label: "Hukum", value: "hukum" },
+  ],
+  itb: [
+    { label: "Teknik Elektro", value: "elektro" },
+    { label: "Teknik Sipil", value: "sipil" },
+    { label: "Arsitektur", value: "arsitektur" },
+  ],
+  ugm: [
+    { label: "Teknik Mesin", value: "mesin" },
+    { label: "Kedokteran", value: "kedokteran" },
+    { label: "Ilmu Komputer", value: "ilkom" },
+  ],
+};
+
+const selectDarkStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: "#181f2e",
+    borderColor: state.isFocused ? "#38bdf8" : "#222b44",
+    color: "#e0e7ef",
+    boxShadow: state.isFocused ? "0 0 0 2px #38bdf8" : "none",
+    borderRadius: 12,
+    minHeight: 44,
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: "#181f2e",
+    color: "#e0e7ef",
+    borderRadius: 12,
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#e0e7ef",
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: "#e0e7ef",
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: "#94a3b8",
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? "#222b44" : "#181f2e",
+    color: "#e0e7ef",
+  }),
+};
 
 export default function Settings() {
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -27,6 +83,16 @@ export default function Settings() {
   const [password, setPassword] = useState({ lama: "", baru: "", konfirmasi: "" });
   const [targetScore, setTargetScore] = useState(() => localStorage.getItem('target_score') || '');
   const [targetError, setTargetError] = useState('');
+  const [universitas, setUniversitas] = useState(() => {
+    const u = localStorage.getItem('universitas');
+    return universitasList.find(x => x.value === u) || null;
+  });
+  const [jurusan, setJurusan] = useState(() => {
+    const j = localStorage.getItem('jurusan');
+    if (!j) return null;
+    if (!universitas) return null;
+    return prodiList[universitas.value]?.find(x => x.value === j) || null;
+  });
 
   function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
@@ -58,7 +124,17 @@ export default function Settings() {
       setTargetError('Skor target harus berupa angka positif');
       return;
     }
+    if (!universitas) {
+      setTargetError('Pilih universitas tujuan');
+      return;
+    }
+    if (!jurusan) {
+      setTargetError('Pilih jurusan tujuan');
+      return;
+    }
     localStorage.setItem('target_score', targetScore);
+    localStorage.setItem('universitas', universitas.value);
+    localStorage.setItem('jurusan', jurusan.value);
     toast.success("Profil berhasil diperbarui!");
   }
 
@@ -72,6 +148,9 @@ export default function Settings() {
     setPassword({ lama: "", baru: "", konfirmasi: "" });
   }
 
+  // Reset jurusan jika universitas berubah
+  useEffect(() => { setJurusan(null); }, [universitas?.value]);
+
   return (
     <div className="p-8 text-white max-w-3xl mx-auto space-y-8">
       <h1 className="text-2xl font-bold mb-4">Pengaturan Akun</h1>
@@ -79,10 +158,13 @@ export default function Settings() {
       <form onSubmit={handleSaveProfile} className="bg-gradient-to-b from-[#10172a] via-[#151e34] to-[#0f172a] border border-cyan-900/40 rounded-2xl shadow-xl p-6 mb-4 space-y-6">
         <h2 className="text-xl font-bold mb-2">Profil Siswa</h2>
         <div className="flex items-center gap-6 mb-4">
-          <div className="relative w-20 h-20">
-            <img src={avatar || "/avatar-default.png"} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-cyan-700 shadow" />
-            <input ref={avatarInput} type="file" accept="image/*" className="hidden" onChange={handleAvatar} />
-            <Button type="button" size="sm" className="absolute bottom-0 right-0 bg-cyan-700 hover:bg-cyan-800 rounded-full px-2 py-1 text-xs" onClick={() => avatarInput.current?.click()}>Ubah</Button>
+          {/* Avatar = logo universitas tujuan */}
+          <div className="w-20 h-20 rounded-full border-4 border-cyan shadow-3d flex items-center justify-center bg-white overflow-hidden">
+            {universitas && universitas.logo ? (
+              <img src={universitas.logo} alt={universitas.label} className="object-contain w-full h-full" />
+            ) : (
+              <span className="text-cyan-700 text-3xl font-bold">?</span>
+            )}
           </div>
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input name="nama" value={profile.nama} onChange={handleProfileChange} placeholder="Nama Lengkap" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
@@ -95,10 +177,28 @@ export default function Settings() {
         </div>
         {/* Tujuan Pendidikan */}
         <h2 className="text-xl font-bold mb-2">Tujuan Pendidikan</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <Input name="universitas" value={profile.universitas} onChange={handleProfileChange} placeholder="Universitas Tujuan" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
-          <Input name="jurusan" value={profile.jurusan} onChange={handleProfileChange} placeholder="Jurusan Tujuan" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
-          <Input name="kota" value={profile.kota} onChange={handleProfileChange} placeholder="Kota Domisili" className="bg-[#181f2e] border border-cyan-900/40 text-cyan-100 rounded-xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Select
+            styles={selectDarkStyles}
+            className=""
+            placeholder="Universitas Tujuan"
+            options={universitasList}
+            value={universitas}
+            onChange={setUniversitas}
+            isClearable
+            isSearchable
+          />
+          <Select
+            styles={selectDarkStyles}
+            className=""
+            placeholder="Jurusan Tujuan"
+            options={universitas ? prodiList[universitas.value] : []}
+            value={jurusan}
+            onChange={setJurusan}
+            isClearable
+            isSearchable
+            isDisabled={!universitas}
+          />
         </div>
         <div className="flex flex-col md:flex-row gap-4 items-center mb-2">
           <Input
